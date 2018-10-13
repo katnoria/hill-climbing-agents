@@ -40,9 +40,10 @@ class Policy(ABC):
         return action
 
     @abstractmethod
-    def step(self, *args, **kwargs):
+    def step(self, current_return):
         """Update policy according to the update schedule/logic"""
         pass
+
 
 class VanillaHillClimbingPolicy(Policy):
     """Implementation of vanilla hill climbing"""
@@ -63,9 +64,8 @@ class VanillaHillClimbingPolicy(Policy):
         if current_return >= self.best_return:
             self.best_return = current_return
             self.best_weights = self.w
-        # perturb the weights
+        # update weights
         self.w = self.best_weights + self.noise * np.random.rand(*self.best_weights.shape)
-
 
 
 class SteepestAscendHillClimbingPolicy(Policy):
@@ -132,14 +132,29 @@ class SimulatedAnnealingPolicy(Policy):
             self.best_return = current_return
             self.best_weights = self.w
             # schedule to anneal the noise
-            self.noise = min(self.min_noise, self.noise/2)
-        
+            self.noise = max(self.min_noise, self.noise/2)
+        # update weights
         self.w = self.best_weights + self.noise * np.random.rand(*self.best_weights.shape)
         
 
 class AdaptiveNoiseScalingPolicy(Policy):
-    def __init__(self):
-        pass
+    """Implementation of Adaptive noise scaling"""
+    def __init__(self, env, noise=1e-2, max_noise=2, min_noise=1e-4, seed=0):
+        """Initialise policy"""
+        super(AdaptiveNoiseScalingPolicy, self).__init__(env, seed)
+        self.noise = noise
+        self.max_noise = max_noise
+        self.min_noise = min_noise
 
     def step(self, current_return):
         super().step(current_return)
+        if current_return > self.best_return:
+            self.best_return = current_return
+            self.best_weights = self.w
+            # contract radius, if we are doing well
+            self.noise = max(self.min_noise, self.noise/2)
+        else:
+            # expand radius, if we are not doing well
+            self.noise = min(self.max_noise, self.noise * 2)
+        # update weights
+        self.w = self.best_weights + self.noise * np.random.rand(*self.best_weights.shape)    

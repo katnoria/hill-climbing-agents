@@ -36,6 +36,9 @@ def load_policy(policy_name, env, max_steps, gamma):
     elif policy_name == 'anneal':
         logger.debug('loading simulated annealing policy')
         return SimulatedAnnealingPolicy(env)
+    elif policy_name == 'ada':
+        logger.debug('loading adaptive noise scaling policy')
+        return AdaptiveNoiseScalingPolicy(env)
     else:
         raise ValueError('No policy by name {} is available'.format(policy_name)) 
 
@@ -93,7 +96,7 @@ def train(env_name, policy_name, num_episodes, max_steps, goal_score, gamma=1.0,
 
 def main():
     parser = argparse.ArgumentParser()
-    # parser.add_argument("env", help="Name of gym environment")
+    # parser.add_argument("env", help="Name of gym environment")    
     parser.add_argument("policy", type=str, help="Name of policy: [vanilla, steepest, anneal, ada]")
     parser.add_argument("episodes", type=int, help="Number of episodes to run")
     parser.add_argument("steps", type=int, help="Maximum number of timesteps to run in each episode")
