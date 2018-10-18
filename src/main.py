@@ -10,7 +10,7 @@ import gym
 import gym.spaces
 import argparse
 from utils import run_episode, calculate_returns
-from agents import VanillaHillClimbingPolicy, SteepestAscendHillClimbingPolicy
+from agents import BaselineRandomPolicy, VanillaHillClimbingPolicy, SteepestAscendHillClimbingPolicy
 from agents import SimulatedAnnealingPolicy, AdaptiveNoiseScalingPolicy
 
 # create logger
@@ -28,7 +28,10 @@ steamhandler.setLevel(logging.DEBUG)
 logger.addHandler(steamhandler)
 
 def load_policy(policy_name, env, max_steps, gamma):
-    if policy_name == 'vanilla':
+    if policy_name == 'random':
+        logger.debug('loading baseline random policy')
+        return BaselineRandomPolicy(env)
+    elif policy_name == 'vanilla':
         logger.debug('loading vanilla hill climbing policy')
         return VanillaHillClimbingPolicy(env)
     elif policy_name == 'steepest':
@@ -97,7 +100,7 @@ def train(args, stop_on_solve=True, print_every=100):
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # parser.add_argument("env", help="Name of gym environment")    
-    parser.add_argument("policy", type=str, help="Name of policy: [vanilla, steepest, anneal, ada]")
+    parser.add_argument("policy", type=str, help="Name of policy: [random, vanilla, steepest, anneal, ada]")
     parser.add_argument("episodes", type=int, help="Number of episodes to run")
     parser.add_argument("steps", type=int, help="Maximum number of timesteps to run in each episode")
     parser.add_argument("goal", type=int, help="Score when environment is considered solved")

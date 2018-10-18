@@ -44,6 +44,26 @@ class Policy(ABC):
         """Update policy according to the update schedule/logic"""
         pass
 
+class BaselineRandomPolicy(Policy):
+    """Baseline policy that chooses random updates"""
+    def __init__(self, env, seed=0):
+        super(BaselineRandomPolicy, self).__init__(env, seed)
+
+    def step(self, current_return):
+        """
+        Choose random weights and compare it with best return
+        if its better than best return then use it
+
+        Parameters
+        ----------
+        current_return (int): Return of current rollout
+        """
+        super().step(current_return)
+        if current_return >= self.best_return:
+            self.best_return = current_return
+            self.best_weights = self.w
+        # update weights
+        self.w = np.random.rand(*self.best_weights.shape)
 
 class VanillaHillClimbingPolicy(Policy):
     """Implementation of vanilla hill climbing"""
@@ -139,7 +159,7 @@ class SimulatedAnnealingPolicy(Policy):
 
 class AdaptiveNoiseScalingPolicy(Policy):
     """Implementation of Adaptive noise scaling"""
-    def __init__(self, env, noise=1e-2, max_noise=2, min_noise=1e-4, seed=0):
+    def __init__(self, env, noise=1e-2, max_noise=2, min_noise=1e-3, seed=0):
         """Initialise policy"""
         super(AdaptiveNoiseScalingPolicy, self).__init__(env, seed)
         self.noise = noise
@@ -148,7 +168,7 @@ class AdaptiveNoiseScalingPolicy(Policy):
 
     def step(self, current_return):
         super().step(current_return)
-        if current_return > self.best_return:
+        if current_return >= self.best_return:
             self.best_return = current_return
             self.best_weights = self.w
             # contract radius, if we are doing well
