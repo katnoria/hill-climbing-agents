@@ -6,6 +6,7 @@ ENV PIP_PACKAGES="\
         h5py \
         numpy \
         pandas \
+        joblib \
         matplotlib \
         jupyter \
         notebook \

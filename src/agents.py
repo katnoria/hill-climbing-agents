@@ -167,6 +167,15 @@ class AdaptiveNoiseScalingPolicy(Policy):
         self.min_noise = min_noise
 
     def step(self, current_return):
+        """
+        Update weights based on following rule:
+        expand search radius when current return is greater than or equal to best return
+        contract search radius when current return is less than best return
+
+        Parameters
+        ----------
+        current_return (int): Return of current rollout
+        """
         super().step(current_return)
         if current_return >= self.best_return:
             self.best_return = current_return
