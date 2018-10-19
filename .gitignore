@@ -5,3 +5,4 @@ runs/
 __pycache__/
 .DS_Store
 .vscode/
+*._*.json
